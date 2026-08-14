@@ -1,0 +1,98 @@
+/* NEXRA custom styles
+   Anything Tailwind's utility classes can't express lives here:
+   keyframes, the outlined-text effect, and scrollbar theming. */
+
+body {
+    background-color: #000000;
+    color: #ffffff;
+    overflow-x: hidden;
+}
+
+.text-outline-stroke {
+    -webkit-text-stroke: 1px #ffffff;
+    color: transparent;
+}
+
+.transition-all-custom {
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+::-webkit-scrollbar {
+    width: 4px;
+}
+
+::-webkit-scrollbar-track {
+    background: #000;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #1f2937;
+}
+
+/* Product card image zoom + dim on hover, no JS required */
+.product-card .product-card__img {
+    transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
+}
+
+.product-card:hover .product-card__img {
+    transform: scale(1.05);
+    filter: brightness(0.7);
+}
+
+@keyframes marquee {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.animate-marquee {
+    animation: marquee 30s linear infinite;
+}
+
+@keyframes fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-up {
+    animation: fade-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes bounce-slow {
+
+    0%,
+    100% {
+        transform: translateY(-100%);
+    }
+
+    50% {
+        transform: translateY(100%);
+    }
+}
+
+.animate-bounce-slow {
+    animation: bounce-slow 3s ease-in-out infinite;
+}
+
+/* Respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+
+    .animate-marquee,
+    .animate-fade-up,
+    .animate-bounce-slow,
+    .product-card .product-card__img {
+        animation: none !important;
+        transition: none !important;
+    }
+}

@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+{# ---------- Hero ---------- #}
+<section class="relative h-screen w-full overflow-hidden flex items-center justify-center">
+    <div class="absolute inset-0 z-0">
+        <div class="hidden md:block w-full h-full bg-cover bg-center md:bg-[center_top_-500px] brightness-75"
+            style="background-image: url('{% static 'images/nexrahero.jpg' %}');"></div>
+        <div class="md:hidden w-full h-full bg-cover bg-center brightness-75"
+            style="background-image: url('{% static 'images/nexrahero.jpg' %}');"></div>
+
+        <div class="absolute inset-0 bg-black/40"></div>
+    </div>
+
+    <div class="relative z-10 text-center px-margin-mobile">
+        <h1 class="font-display text-display-2xl text-stark-white hidden md:block animate-fade-up">
+            SCARCITY <br> TRUMPS TRENDS
+        </h1>
+        <h1 class="font-display text-headline-lg-mobile text-stark-white md:hidden mb-4">
+            SCARCITY TRUMPS TRENDS
+        </h1>
+        <p class="font-body text-body-lg text-white max-w-xl mx-auto mb-10 tracking-widest uppercase">
+            Driven by progression. Built for legacy.
+        </p>
+        <div class="flex flex-col md:flex-row gap-4 justify-center">
+            <a href=""
+                class="font-body font-bold bg-stark-white text-pitch-black text-button uppercase tracking-widest px-12 py-5 hover:bg-on-surface-variant transition-all-custom active:scale-95">
+                Enter The Next Era
+            </a>
+            <a href=""
+                class="font-body font-bold border border-stark-white text-stark-white text-button uppercase tracking-widest px-12 py-5 hover:bg-stark-white hover:text-pitch-black transition-all-custom active:scale-95">
+                View Lookbook
+            </a>
+        </div>
+    </div>
+
+    <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+        <span class="font-mono text-label-caps text-outline">SCROLL</span>
+        <div class="w-[1px] h-12 bg-muted-steel relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1/2 bg-stark-white animate-bounce-slow"></div>
+        </div>
+    </div>
+</section>
+
+<section class="py-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto bg-stark-white">
+    <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+        <div>
+            <span class="font-mono text-label-caps text-right md:text-left text-outline block mb-2">EARLY ACCESS IS LIVE</span>
+            <h2 class="font-display text-headline-lg text-pitch-black">LATEST DROP</h2>
+        </div>
+        <a href=""
+            class="font-body font-bold text-button uppercase tracking-widest text-pitch-black border-b border-pitch-black pb-2 hover:text-outline hover:border-outline transition-colors">
+            Explore All
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+        <a href="" class="product-card group block border-l border-muted-steel pl-4 md:pl-0 md:border-0">
+            <div class="relative overflow-hidden aspect-[4/5] bg-surface-gray mb-6">
+                <img src="{% static 'images/nexracap.png' %}" alt="Nexra Cap"
+                    class="product-card__img w-full h-full object-cover">
+                <div class="absolute top-4 left-4">
+                    <span
+                        class="bg-pitch-black border border-stark-white text-stark-white font-mono text-[10px] px-3 py-1 uppercase">1
+                        OF 50</span>
+                </div>
+            </div>
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="font-body text-body-md text-pitch-black mb-1 group-hover:underline underline-offset-4">
+                        NexRa Hat</h3>
+                </div>
+                <span class="font-mono text-label-caps text-pitch-black">₦##,###.##</span>
+            </div>
+        </a>
+    </div>
+</section>
+
+{# ---------- Brand spotlight ---------- #}
+<section class="relative py-section-gap bg-surface-gray">
+    <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+        <div class="flex flex-col md:flex-row items-center gap-16">
+
+            <div class="w-full md:w-1/2 order-2 md:order-1">
+                <div class="border-l-2 border-stark-white pl-4 md:pl-12">
+                    <span class="font-mono text-label-caps text-outline block mb-4">THE MOVEMENT</span>
+                    <h2 class="font-display text-headline-lg text-stark-white mb-8 leading-tight">
+                        LEGACY OVER<br> FLEETING<br> TRENDS
+                    </h2>
+                    <p class="font-body text-body-lg text-on-surface-variant mb-10 max-w-md leading-relaxed">
+                        NexRa started from zero—fueled exclusively by late-night drives and a refusal to fade into the
+                        background. We build pieces that signify relentless evolution and mindset.
+                    </p>
+                    <a href=""
+                        class="inline-block font-body font-bold bg-stark-white text-pitch-black text-button uppercase tracking-widest px-10 py-4 hover:bg-outline transition-colors">
+                        Our Story
+                    </a>
+                </div>
+            </div>
+
+            <div class="w-full md:w-1/2 order-1 md:order-2">
+                <div class="relative border border-muted-steel p-4">
+                    <video autoplay loop muted playsinline class="w-full transition-all duration-700">
+                        <source src="{% static 'images/nexravid.mp4' %}" type="video/mp4">
+                    </video>
+                    <div
+                        class="absolute -bottom-8 -right-8 w-48 h-48 border-r border-b border-stark-white hidden md:block">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+{# ---------- Marquee ---------- #}
+<section class="py-section-gap overflow-hidden" aria-hidden="true">
+    <div class="flex whitespace-nowrap overflow-hidden">
+        <div class="flex animate-marquee items-center">
+            {% for i in "1234" %}
+            <span
+                class="font-display text-[160px] leading-none {% if forloop.counter|divisibleby:2 %}text-stark-white{% else %}text-outline-stroke{% endif %} mx-12">NEXRA</span>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}

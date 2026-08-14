@@ -1,0 +1,47 @@
+{% load static %}
+{% load humanize %}
+{% load waffle_tags %}
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}NEXRA | Urban Prestige Streetwear{% endblock %}</title>
+    <link rel="icon" href="{% static 'images/nexra.png' %}" type="image/png">
+    <meta name="description"
+        content="{% block meta_description %}Authentic. Urban. Prestigious. Shop the NEXRA collection.{% endblock %}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;700&family=JetBrains+Mono:wght@500&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+
+    {# Tailwind CDN for now. Swap this for a compiled build (django-tailwind) before going to production. #}
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="{% static 'js/tailwind-config.js' %}"></script>
+
+    <script src="https://kit.fontawesome.com/5c85fd2f27.js" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="bg-pitch-black selection:bg-stark-white selection:text-pitch-black overlay-x-hidden">
+
+    {% include "partials/header.html" %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include "partials/footer.html" %}
+
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+
+</html>

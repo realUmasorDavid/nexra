@@ -1,0 +1,49 @@
+{% load static %}
+<footer class="bg-pitch-black border-t border-muted-steel">
+    <div
+        class="flex flex-col md:flex-row justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-section-gap max-w-container-max mx-auto gap-12">
+
+        <div class="flex flex-col items-center md:items-start text-center md:text-left">
+            <a href="" class="flex-shrink-0">
+                <img src="{% static 'images/nexra.png' %}" alt="NEXRA" class="h-16 md:h-20 my-4 object-contain">
+            </a>
+            <p class="font-mono text-label-caps text-outline max-w-xs">
+                CRAFTED FOR THOSE WHO COMMAND RESPECT WITHOUT UTTERING A WORD.
+            </p>
+        </div>
+
+        <nav class="flex flex-wrap justify-center gap-8 md:gap-12">
+            <a href=""
+                class="font-mono text-label-caps text-outline hover:text-stark-white underline decoration-1 underline-offset-4 transition-colors">Privacy
+                Policy</a>
+            <a href=""
+                class="font-mono text-label-caps text-outline hover:text-stark-white underline decoration-1 underline-offset-4 transition-colors">Terms
+                of Service</a>
+            <a href=""
+                class="font-mono text-label-caps text-outline hover:text-stark-white underline decoration-1 underline-offset-4 transition-colors">Shipping
+                &amp; Returns</a>
+        </nav>
+
+        <div class="flex items-center gap-6">
+            <a href="https://www.instagram.com/nexra?igsh=MXJsYW9tcW4wODN2Zw%3D%3D&utm_source=qr" target="_blank"
+                rel="noopener noreferrer" aria-label="Instagram"
+                class="text-outline hover:text-stark-white transition-colors text-xl">
+                <i class="fa-brands fa-instagram"></i>
+            </a>
+            <a href="https://t.snapchat.com/zZGXw5Ys" target="_blank" rel="noopener noreferrer" aria-label="Snapchat"
+                class="text-outline hover:text-stark-white transition-colors text-xl">
+                <i class="fa-brands fa-snapchat"></i>
+            </a>
+            <a href="https://www.tiktok.com/@nexra1?_t=ZS-8ylizFPsEdc&_r=1" target="_blank"
+                rel="noopener noreferrer" aria-label="TikTok"
+                class="text-outline hover:text-stark-white transition-colors text-xl">
+                <i class="fa-brands fa-tiktok"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="border-t border-muted-steel/50 py-8 text-center">
+        <p class="font-mono text-[10px] tracking-widest text-outline">&copy; {% now "Y" %} NEXRA. ALL RIGHTS
+            RESERVED.</p>
+    </div>
+</footer>
