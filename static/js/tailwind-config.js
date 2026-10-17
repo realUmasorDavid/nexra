@@ -1,4 +1,4 @@
-// HOODRANKED design tokens
+// NEXRA design tokens
 // Kept in its own file so base.html isn't a wall of config.
 tailwind.config = {
   darkMode: "class",

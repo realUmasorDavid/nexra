@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Cart | NEXRA{% endblock %}
+{% block meta_description %}Review your NEXRA cart and proceed to checkout.{% endblock %}
+
+{% block content %}
+<main
+    class="bg-stark-white min-h-[70vh] px-margin-mobile md:px-margin-desktop py-12 md:py-16 max-w-container-max mx-auto">
+
+    <h1
+        class="font-display text-headline-lg md:text-display-lg text-pitch-black text-center mb-12 md:mb-16 tracking-tight">
+        YOUR CART
+    </h1>
+
+    {# Empty state #}
+    <div id="cart-empty" class="text-center py-20 hidden">
+        <p class="font-body text-body-lg text-outline mb-8">Your cart is empty</p>
+        <a href="{% url 'store:store' %}"
+            class="inline-block font-body font-bold bg-pitch-black text-stark-white text-button uppercase tracking-widest px-12 py-5 hover:bg-on-surface-variant transition-colors">
+            Start Shopping
+        </a>
+    </div>
+
+    {# Cart content #}
+    <div id="cart-content" class="hidden">
+        <div class="space-y-6 mb-12">
+            {# Desktop header #}
+            <div
+                class="hidden md:grid grid-cols-12 gap-4 pb-4 border-b border-muted-steel font-mono text-label-caps text-outline uppercase tracking-widest">
+                <div class="col-span-6">Product</div>
+                <div class="col-span-2 text-center">Size / Color</div>
+                <div class="col-span-2 text-center">Price</div>
+                <div class="col-span-2 text-center">Qty</div>
+            </div>
+
+            <div id="cart-items" class="space-y-6"></div>
+        </div>
+
+        {# Order summary #}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="md:col-start-2">
+                <div class="border border-muted-steel bg-stark-white p-6 md:p-8">
+                    <h3 class="font-display text-headline-md text-pitch-black mb-6 tracking-tight">Order Summary</h3>
+
+                    <div class="space-y-4 mb-8">
+                        <div class="flex justify-between font-body text-body-md text-pitch-black">
+                            <span>Subtotal</span>
+                            <span id="cart-subtotal">₦0</span>
+                        </div>
+                        <div
+                            class="flex justify-between font-body text-body-lg font-bold text-pitch-black border-t border-muted-steel pt-4">
+                            <span>Total</span>
+                            <span id="cart-total">₦0</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <a href="{% url 'store:checkout' %}" id="checkout-btn"
+                            class="block w-full font-body font-bold bg-pitch-black text-stark-white text-button uppercase tracking-widest py-5 text-center hover:bg-on-surface-variant transition-colors">
+                            Proceed to Checkout
+                        </a>
+                        <a href="{% url 'store:store' %}"
+                            class="block w-full font-body font-bold border border-pitch-black text-pitch-black text-button uppercase tracking-widest py-5 text-center hover:bg-pitch-black hover:text-stark-white transition-colors">
+                            Continue Shopping
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div id="cart-toast"></div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        function getCart() {
+            try {
+                return JSON.parse(localStorage.getItem("nexra_cart")) || [];
+            } catch {
+                return [];
+            }
+        }
+
+        function saveCart(cart) {
+            localStorage.setItem("nexra_cart", JSON.stringify(cart));
+            updateCartCount();
+            renderCart();
+        }
+
+        function updateCartCount() {
+            const cart = getCart();
+            const count = cart.reduce((sum, item) => sum + (item.quantity || 0), 0);
+            document.querySelectorAll(".cart-count").forEach((el) => {
+                el.textContent = count;
+            });
+        }
+
+        function showToast(message = "Item removed") {
+            const toast = document.getElementById("cart-toast");
+            if (!toast) return;
+            toast.textContent = message;
+            toast.classList.add("show");
+            setTimeout(() => toast.classList.remove("show"), 2500);
+        }
+
+        function renderCart() {
+            const cart = getCart();
+            const container = document.getElementById("cart-items");
+            container.innerHTML = "";
+
+            if (cart.length === 0) {
+                document.getElementById("cart-content").classList.add("hidden");
+                document.getElementById("cart-empty").classList.remove("hidden");
+                updateCartCount();
+                return;
+            }
+
+            document.getElementById("cart-content").classList.remove("hidden");
+            document.getElementById("cart-empty").classList.add("hidden");
+
+            let subtotal = 0;
+
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+
+                const sizeColor = [item.size, item.color].filter(Boolean).join(" / ");
+
+                const row = `
+        <div class="border border-muted-steel bg-stark-white overflow-hidden md:grid md:grid-cols-12 md:gap-6 md:p-6 md:items-center">
+          <!-- Product -->
+          <div class="md:col-span-6 p-5 md:p-0 flex items-start md:items-center gap-5">
+            <img src="${item.image || ''}" alt="${item.name}"
+                 class="w-24 h-24 md:w-20 md:h-20 object-cover object-top flex-shrink-0 bg-surface-gray">
+            <div class="flex-1 min-w-0">
+              <h4 class="font-body font-bold text-body-md text-pitch-black truncate">${item.name}</h4>
+              <a href="/products/${item.slug}/" class="font-mono text-label-caps text-outline hover:text-pitch-black transition-colors mt-1 inline-block">
+                View product
+              </a>
+            </div>
+          </div>
+
+          <!-- Size / Color -->
+          <div class="md:col-span-2 px-5 py-2 md:p-0 font-mono text-sm text-pitch-black md:text-center">
+            <span class="md:hidden font-mono text-label-caps text-outline mr-2">Size / Color:</span>
+            ${sizeColor || "—"}
+          </div>
+
+          <!-- Price -->
+          <div class="md:col-span-2 px-5 py-2 md:p-0 font-mono text-sm text-pitch-black md:text-center">
+            <span class="md:hidden font-mono text-label-caps text-outline mr-2">Price:</span>
+            ₦${Number(item.price).toLocaleString()}
+          </div>
+
+          <!-- Quantity + Remove -->
+          <div class="md:col-span-2 px-5 py-5 md:p-0 flex items-center justify-between md:justify-center gap-4">
+            <div class="flex items-center border border-muted-steel">
+              <button type="button" class="px-4 py-2 text-pitch-black hover:bg-surface-gray transition-colors"
+                      onclick="window.__cartUpdateQty(${index}, -1)">−</button>
+              <span class="px-5 py-2 font-body font-bold text-pitch-black">${item.quantity}</span>
+              <button type="button" class="px-4 py-2 text-pitch-black hover:bg-surface-gray transition-colors"
+                      onclick="window.__cartUpdateQty(${index}, 1)">+</button>
+            </div>
+            <button type="button" class="font-mono text-sm text-outline hover:text-pitch-black transition-colors"
+                    onclick="window.__cartRemoveItem(${index})">
+              Remove
+            </button>
+          </div>
+        </div>
+      `;
+
+                container.innerHTML += row;
+            });
+
+            document.getElementById("cart-subtotal").textContent = `₦${subtotal.toLocaleString()}`;
+            document.getElementById("cart-total").textContent = `₦${subtotal.toLocaleString()}`;
+            updateCartCount();
+        }
+
+        // Expose for inline onclick handlers
+        window.__cartUpdateQty = function (index, change) {
+            const cart = getCart();
+            const newQty = cart[index].quantity + change;
+            if (newQty < 1) return;
+            cart[index].quantity = newQty;
+            saveCart(cart);
+        };
+
+        window.__cartRemoveItem = function (index) {
+            const cart = getCart();
+            cart.splice(index, 1);
+            saveCart(cart);
+            showToast("Item removed");
+        };
+
+        // Initial render
+        renderCart();
+        updateCartCount();
+    });
+</script>
+{% endblock %}

@@ -9,15 +9,15 @@
 
         {# Left Navigation Block #}
         <nav class="hidden md:flex items-center gap-8 justify-start">
-            <a href=""
+            <a href="{% url 'core:index' %}"
                 class="font-body font-bold text-button uppercase tracking-widest pb-1 border-b-2 transition-colors scale-95 active:scale-90 {% if request.resolver_match.url_name == 'index' %}text-pitch-black border-pitch-black{% else %}text-outline border-transparent hover:text-pitch-black{% endif %}">Home</a>
-            <a href=""
+            <a href="{% url 'store:store' %}"
                 class="font-body font-bold text-button uppercase tracking-widest pb-1 border-b-2 transition-colors scale-95 active:scale-90 {% if request.resolver_match.url_name == 'store' %}text-pitch-black border-pitch-black{% else %}text-outline border-transparent hover:text-pitch-black{% endif %}">Shop</a>
         </nav>
 
         {# Centered Logo Block #}
         <div class="flex justify-start md:justify-center items-center">
-            <a href="" class="flex-shrink-0">
+            <a href="{% url 'core:index' %}" class="flex-shrink-0">
                 <img src="{% static 'images/nexra.png' %}" alt="NEXRA" class="h-16 md:h-20 object-contain">
             </a>
         </div>
@@ -26,8 +26,8 @@
         <div class="flex items-center justify-end gap-8">
             {# Right Nav Block (Hidden on mobile) #}
             <nav class="hidden md:flex items-center gap-8">
-                <a href=""
-                    class="font-body font-bold text-button uppercase tracking-widest pb-1 border-b-2 transition-colors scale-95 active:scale-90 {% if request.resolver_match.url_name == 'lookbook' %}text-pitch-black border-pitch-black{% else %}text-outline border-transparent hover:text-pitch-black{% endif %}">Lookbook</a>
+                <a href="{% url 'orders:track_order' %}"
+                    class="font-body font-bold text-button uppercase tracking-widest pb-1 border-b-2 transition-colors scale-95 active:scale-90 {% if request.resolver_match.url_name == 'track_order' %}text-pitch-black border-pitch-black{% else %}text-outline border-transparent hover:text-pitch-black{% endif %}">Track your Order</a>
                 <a href=""
                     class="font-body font-bold text-button uppercase tracking-widest pb-1 border-b-2 transition-colors scale-95 active:scale-90
                                 {% if request.resolver_match.url_name == 'contact' %}text-pitch-black border-pitch-black{% else %}text-outline border-transparent hover:text-pitch-black{% endif %}">
@@ -37,11 +37,11 @@
 
             {# Icons & Triggers #}
             <div class="flex items-center gap-6">
-                <a href="" aria-label="Cart"
+                <a href="{% url 'store:cart' %}" aria-label="Cart"
                     class="text-pitch-black hover:text-outline transition-colors relative">
                     <span class="material-symbols-outlined">shopping_bag</span>
                     <span
-                        class="cart-count absolute -top-1 -right-1 bg-pitch-black text-stark-white text-[10px] font-bold px-1 rounded-full">{{ cart_count|default:"0" }}</span>
+                        class="cart-count absolute -top-1 -right-1 bg-pitch-black text-stark-white text-[10px] font-bold px-1 rounded-full">{{ cart_count }}</span>
                 </a>
 
                 <!-- Main Toggle Button -->
@@ -85,10 +85,10 @@
     <div class="flex flex-col gap-8 px-margin-mobile pt-12">
         <a href="" data-mobile-link
             class="font-body font-bold text-base uppercase {% if request.resolver_match.url_name == 'index' %}text-pitch-black{% else %}text-outline{% endif %}">Home</a>
-        <a href="" data-mobile-link
+        <a href="{% url 'store:store' %}" data-mobile-link
             class="font-body font-bold text-base uppercase {% if request.resolver_match.url_name == 'store' %}text-pitch-black{% else %}text-outline{% endif %}">Shop</a>
-        <a href="" data-mobile-link
-            class="font-body font-bold text-base uppercase {% if request.resolver_match.url_name == 'lookbook' %}text-stark-white{% else %}text-outline{% endif %}">Lookbook</a>
+        <a href="{% url 'orders:track_order' %}" data-mobile-link
+            class="font-body font-bold text-base uppercase {% if request.resolver_match.url_name == 'track_order' %}text-stark-white{% else %}text-outline{% endif %}">Track your Order</a>
         <!-- Added missing Contact link to mobile drawer view -->
         <a href="" data-mobile-link
             class="font-body font-bold text-base uppercase {% if request.resolver_match.url_name == 'contact' %}text-stark-white{% else %}text-outline{% endif %}">Contact</a>

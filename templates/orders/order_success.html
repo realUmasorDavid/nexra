@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Order Confirmed | NEXRA{% endblock %}
+{% block meta_description %}Your NEXRA order has been confirmed.{% endblock %}
+
+{% block content %}
+<main class="bg-stark-white px-margin-mobile md:px-margin-desktop py-12 md:py-20 max-w-container-max mx-auto">
+
+    <!-- Success header -->
+    <div class="text-center mb-14 md:mb-20">
+        <div class="inline-flex items-center justify-center w-16 h-16 border border-pitch-black mb-6">
+            <span class="material-symbols-outlined text-3xl text-pitch-black">check</span>
+        </div>
+        <h1 class="font-display text-headline-lg md:text-display-lg text-pitch-black tracking-tight mb-4">
+            ORDER CONFIRMED
+        </h1>
+        <p class="font-body text-body-md text-outline max-w-md mx-auto">
+            Thank you for your order. A confirmation email has been sent to
+            <span class="text-pitch-black font-medium">{{ order.email }}</span>.
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16">
+
+        <!-- ===================== ORDER DETAILS ===================== -->
+        <div class="lg:col-span-3 space-y-10">
+
+            <!-- Order meta -->
+            <section class="border border-muted-steel p-6 md:p-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                        <p class="font-mono text-label-caps text-outline mb-1 uppercase tracking-widest">Order Number
+                        </p>
+                        <p class="font-body font-bold text-body-lg text-pitch-black">{{ order.order_id }}</p>
+                    </div>
+                    <div>
+                        <p class="font-mono text-label-caps text-outline mb-1 uppercase tracking-widest">Date</p>
+                        <p class="font-body text-body-md text-pitch-black">{{ order.created_at|date:"M d, Y · H:i" }}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="font-mono text-label-caps text-outline mb-1 uppercase tracking-widest">Payment Status
+                        </p>
+                        <p class="font-body text-body-md text-pitch-black capitalize">{{ order.get_payment_status_display }}</p>
+                    </div>
+                    <div>
+                        <p class="font-mono text-label-caps text-outline mb-1 uppercase tracking-widest">Order Status
+                        </p>
+                        <p class="font-body text-body-md text-pitch-black capitalize">{{ order.get_status_display }}</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Items -->
+            <section>
+                <h2 class="font-display text-headline-md text-pitch-black mb-6">Items Ordered</h2>
+                <div class="space-y-4">
+                    {% for item in order.items.all %}
+                    <div class="border border-muted-steel p-5 flex gap-5">
+                        {% if item.image %}
+                        <img src="{{ item.image }}" alt="{{ item.product_name }}"
+                            class="w-20 h-20 object-cover object-top bg-surface-gray flex-shrink-0">
+                        {% else %}
+                        <div class="w-20 h-20 bg-surface-gray flex-shrink-0"></div>
+                        {% endif %}
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-body font-bold text-body-md text-pitch-black">{{ item.product_name }}</h3>
+                            <p class="font-mono text-xs text-outline mt-1">
+                                {% if item.size or item.color %}
+                                {{ item.size }}{% if item.size and item.color %} / {% endif %}{{ item.color }}
+                                {% endif %}
+                                · Qty {{ item.quantity }}
+                            </p>
+                            <p class="font-mono text-sm text-pitch-black mt-2">
+                                ₦{{ item.line_total|floatformat:0|intcomma }}
+                            </p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="font-body text-body-md text-outline">No items found.</p>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- Shipping -->
+            <section>
+                <h2 class="font-display text-headline-md text-pitch-black mb-6">Shipping Details</h2>
+                <div class="border border-muted-steel p-6 md:p-8 space-y-3">
+                    <p class="font-body text-body-md text-pitch-black font-medium">{{ order.name }}</p>
+                    <p class="font-body text-body-md text-outline">{{ order.phone }}</p>
+                    <p class="font-body text-body-md text-outline">{{ order.email }}</p>
+                    <div class="pt-3 border-t border-muted-steel mt-3">
+                        <p class="font-body text-body-md text-pitch-black">{{ order.address }}</p>
+                        <p class="font-body text-body-md text-outline">
+                            {{ order.city }}, {{ order.state }}
+                            {% if order.postal_code %} · {{ order.postal_code }}{% endif %}
+                        </p>
+                    </div>
+                    {% if order.additional_notes %}
+                    <div class="pt-3 border-t border-muted-steel mt-3">
+                        <p class="font-mono text-label-caps text-outline mb-1 uppercase tracking-widest">Notes</p>
+                        <p class="font-body text-body-md text-pitch-black">{{ order.additional_notes }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+        </div>
+
+        <!-- ===================== SUMMARY ===================== -->
+        <div class="lg:col-span-2">
+            <div class="border border-muted-steel p-6 md:p-8 sticky top-28">
+                <h2 class="font-display text-headline-md text-pitch-black mb-6">Order Summary</h2>
+
+                <div class="space-y-4 mb-8">
+                    <div class="flex justify-between font-body text-body-md text-pitch-black">
+                        <span>Subtotal</span>
+                        <span>₦{{ order.subtotal|floatformat:0|intcomma }}</span>
+                    </div>
+                    <div class="flex justify-between font-body text-body-md text-pitch-black">
+                        <span>Shipping ({{ order.get_shipping_type_display }})</span>
+                        <span>₦{{ order.shipping_fee|floatformat:0|intcomma }}</span>
+                    </div>
+                    <div class="flex justify-between font-body text-body-md text-pitch-black">
+                        <span>Service Fee</span>
+                        <span>₦{{ order.service_fee|floatformat:0|intcomma }}</span>
+                    </div>
+                    <div
+                        class="flex justify-between font-body text-body-lg font-bold text-pitch-black border-t border-muted-steel pt-4">
+                        <span>Total Paid</span>
+                        <span>₦{{ order.total_price|floatformat:0|intcomma }}</span>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <a href="{% url 'orders:track_order' %}?order_id={{ order.order_id }}&email={{ order.email }}"
+                        class="block w-full font-body font-bold bg-pitch-black text-stark-white text-button uppercase tracking-widest py-5 text-center hover:bg-on-surface-variant transition-colors">
+                        Track Order
+                    </a>
+                    <a href="{% url 'store:store' %}"
+                        class="block w-full font-body font-bold border border-pitch-black text-pitch-black text-button uppercase tracking-widest py-5 text-center hover:bg-pitch-black hover:text-stark-white transition-colors">
+                        Continue Shopping
+                    </a>
+                </div>
+
+                <p class="mt-6 font-mono text-xs text-outline text-center">
+                    Delivery takes 1–2 weeks
+                </p>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_scripts %}
+{% if should_clear_cart %}
+<script>
+    localStorage.removeItem("nexra_cart");
+    document.querySelectorAll(".cart-count").forEach(el => el.textContent = "0");
+</script>
+{% endif %}
+{% endblock %}

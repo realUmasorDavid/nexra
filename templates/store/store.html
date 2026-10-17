@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+{% load waffle_tags %}
+
+{% block title %}Store | NEXRA — Premium Streetwear Brand{% endblock %}
+{% block meta_description %}Shop the latest NEXRA drops — premium hoodies, tees, limited editions. Streetwear that
+hits different.{% endblock %}
+
+{% block extra_head %}
+<!-- <link rel="stylesheet" href="{% static 'css/store-widgets.css' %}"> -->
+{% endblock %}
+
+{% block content %}
+
+<section class="bg-stark-white py-12 md:py-16 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+
+    <!-- Filter / Sort toggles -->
+    <div class="flex justify-between items-center pb-6 border-b border-muted-steel mb-8">
+        <button type="button" id="filter-toggle"
+            class="flex items-center gap-2 font-body font-bold text-button uppercase tracking-widest text-pitch-black hover:text-outline transition-colors">
+            <span>Filter</span>
+            <span class="material-symbols-outlined text-lg">tune</span>
+        </button>
+        <button type="button" id="sort-toggle"
+            class="flex items-center gap-2 font-body font-bold text-button uppercase tracking-widest text-pitch-black hover:text-outline transition-colors">
+            <span>Sort by</span>
+            <span class="material-symbols-outlined text-lg">sort</span>
+        </button>
+    </div>
+
+    {# Filter panel #}
+    <div id="filter-panel"
+        class="hidden bg-stark-white border border-muted-steel overflow-hidden transition-all duration-500 ease-in-out max-h-0 mb-8">
+        <div class="px-6 md:px-8 py-8 space-y-8">
+            <div>
+                <label for="collection" class="block font-mono text-label-caps text-outline mb-3">Collection</label>
+                <select id="collection" name="collection"
+                    class="w-full md:w-64 bg-stark-white border border-muted-steel text-pitch-black px-4 py-3 focus:outline-none focus:ring-2 focus:ring-stark-white">
+                    <option value="">All Collections</option>
+                    {% for collection in collections %}
+                    <option value="{{ collection.slug }}">{{ collection.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="min_price" class="block font-mono text-label-caps text-outline mb-3">Min Price
+                        (₦)</label>
+                    <input type="number" id="min_price" name="min_price" placeholder="0"
+                        class="w-full bg-stark-white border border-muted-steel text-pitch-black px-4 py-3 focus:outline-none focus:ring-2 focus:ring-stark-white">
+                </div>
+                <div>
+                    <label for="max_price" class="block font-mono text-label-caps text-outline mb-3">Max Price
+                        (₦)</label>
+                    <input type="number" id="max_price" name="max_price" placeholder="500000"
+                        class="w-full bg-stark-white border border-muted-steel text-pitch-black px-4 py-3 focus:outline-none focus:ring-2 focus:ring-stark-white">
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <button type="button" id="apply-filters"
+                    class="flex-1 font-body font-bold bg-pitch-black text-stark-white py-4 uppercase tracking-widest hover:bg-on-surface-variant transition-colors">
+                    Apply Filters
+                </button>
+                <button type="button" id="close-filter"
+                    class="flex-1 font-body font-bold border border-muted-steel text-pitch-black py-4 uppercase tracking-widest hover:bg-muted-steel/20 transition-colors">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {# Sort panel #}
+    <div id="sort-panel"
+        class="hidden bg-stark-white border border-muted-steel overflow-hidden transition-all duration-500 ease-in-out max-h-0 mb-8">
+        <div class="px-6 md:px-8 py-8">
+            <label for="sort" class="block font-mono text-label-caps text-outline mb-3">Sort By</label>
+            <select id="sort" name="sort"
+                class="w-full md:w-64 bg-stark-white border border-muted-steel text-pitch-black px-4 py-3 focus:outline-none focus:ring-2 focus:ring-stark-white">
+                <option value="newest">Newest</option>
+                <option value="price_asc">Price: Low to High</option>
+                <option value="price_desc">Price: High to Low</option>
+                <option value="name_asc">Name A-Z</option>
+                <option value="name_desc">Name Z-A</option>
+            </select>
+            <div class="mt-8 flex flex-col sm:flex-row gap-4">
+                <button type="button" id="apply-sort"
+                    class="flex-1 font-body font-bold bg-pitch-black text-stark-white py-4 uppercase tracking-widest hover:bg-on-surface-variant transition-colors">
+                    Apply Sort
+                </button>
+                <button type="button" id="close-sort"
+                    class="flex-1 font-body font-bold border border-muted-steel text-pitch-black py-4 uppercase tracking-widest hover:bg-muted-steel/20 transition-colors">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Real products -->
+    {% if products %}
+    <div id="real-products" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-gutter">
+        {% for product in products %}
+        {% if product.is_sold_out %}
+        <div class="product-card group relative bg-surface-gray overflow-hidden cursor-not-allowed opacity-60">
+            {% else %}
+            <a href="{% url 'products:product_detail' product.slug %}"
+                class="product-card group block bg-surface-gray overflow-hidden">
+                {% endif %}
+
+                <div class="relative overflow-hidden aspect-[4/5] bg-surface-gray">
+                    {% if product.primary_image_url %}
+                    <img src="{{ product.primary_image_url }}" alt="{{ product.name }}"
+                        class="product-card__img w-full h-full object-cover object-top" loading="lazy">
+                    {% else %}
+                    <div class="w-full h-full bg-muted-steel/30 flex items-center justify-center">
+                        <span class="font-mono text-xs text-outline">No image</span>
+                    </div>
+                    {% endif %}
+
+                    {% if product.is_sold_out %}
+                    <div class="absolute top-4 left-4 bg-pitch-black border border-stark-white px-3 py-1">
+                        <span class="font-mono text-[10px] text-stark-white uppercase tracking-widest">Sold Out</span>
+                    </div>
+                    {% elif product.is_on_sale %}
+                    <div class="absolute top-4 left-4 bg-pitch-black border border-stark-white px-3 py-1">
+                        <span class="font-mono text-[10px] text-stark-white uppercase tracking-widest">
+                            -{{ product.discount_percentage }}%
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="py-4 px-4">
+                    <h3 class="font-body text-body-md text-stark-white mb-1 group-hover:underline underline-offset-4">
+                        {{ product.name }}
+                    </h3>
+                    {% if product.is_on_sale %}
+                    <p class="font-mono text-label-caps text-outline" data-ngn-price="{{ product.price }}">
+                        ₦{{ product.price|intcomma }} <s>₦{{ product.compare_at_price|intcomma }}</s>
+                    </p>
+                    {% else %}
+                    <p class="font-mono text-label-caps text-outline" data-ngn-price="{{ product.price }}">
+                        ₦{{ product.price|intcomma }}
+                    </p>
+                    {% endif %}
+                </div>
+
+                {% if product.is_sold_out %}
+        </div>
+        {% else %}
+        </a>
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-20">
+        <p class="font-body text-body-md text-outline">No available products right now — check back soon.</p>
+    </div>
+    {% endif %}
+
+</section>
+
+{% endblock %}

@@ -1,18 +1,19 @@
 document.addEventListener("DOMContentLoaded", () => {
   const header = document.querySelector("[data-site-header]");
 
-  // --- Cart count badge ---
-  // Reads a simple localStorage cart so the header badge stays accurate
-  // across pages without a server round-trip. Swap this for a session/DB-backed
-  // count once the cart is server-rendered.
+  // --- Cart count badge (single source of truth) ---
+  // Every script on the site should call window.nexra.updateCartCount()
+  // instead of writing to .cart-count directly. That keeps there from
+  // being two competing pieces of logic that can disagree.
   const getCart = () => {
-    const raw = localStorage.getItem("hoodranked_cart");
+    const raw = localStorage.getItem("nexra_cart");
     try {
       return raw ? JSON.parse(raw) : [];
     } catch {
       return [];
     }
   };
+
   const updateCartCount = () => {
     const count = getCart().reduce(
       (sum, item) => sum + (item.quantity || 0),
@@ -21,10 +22,49 @@ document.addEventListener("DOMContentLoaded", () => {
     document
       .querySelectorAll(".cart-count")
       .forEach((el) => (el.textContent = count));
+    return count;
   };
+
   updateCartCount();
-  window.hoodranked = window.hoodranked || {};
-  window.hoodranked.updateCartCount = updateCartCount;
+  window.nexra = window.nexra || {};
+  window.nexra.updateCartCount = updateCartCount;
+
+  // Any script can dispatch this instead of touching the DOM itself,
+  // e.g. window.dispatchEvent(new Event("cart:updated"))
+  window.addEventListener("cart:updated", updateCartCount);
+
+  // --- Diagnostic safety net -------------------------------------------
+  // Something outside header.js / product-detail.js is resetting the
+  // badge to a stale value after we set it. Until that's tracked down,
+  // watch the badge node(s) and (a) log who/when it changes so it shows
+  // up in the console with a stack trace, and (b) correct it back to the
+  // real localStorage-derived count so the UI stays right in the meantime.
+  const observer = new MutationObserver((mutations) => {
+    const expected = String(
+      getCart().reduce((sum, item) => sum + (item.quantity || 0), 0),
+    );
+    mutations.forEach((m) => {
+      const el = m.target.nodeType === 3 ? m.target.parentElement : m.target;
+      if (!el || !el.classList || !el.classList.contains("cart-count")) return;
+      if (el.textContent !== expected) {
+        console.warn(
+          `[cart-count] badge was overwritten to "${el.textContent}" ` +
+            `(expected "${expected}"). Something else on the page is ` +
+            `setting .cart-count directly — check base.html / other ` +
+            `scripts for a second cart_count render.`,
+        );
+        el.textContent = expected;
+      }
+    });
+  });
+  document.querySelectorAll(".cart-count").forEach((el) => {
+    observer.observe(el, {
+      characterData: true,
+      childList: true,
+      subtree: true,
+    });
+  });
+  // ------------------------------------------------------------------------
 
   if (!header) return;
 

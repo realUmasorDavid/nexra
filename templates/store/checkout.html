@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Checkout | NEXRA{% endblock %}
+{% block meta_description %}Secure checkout for your NEXRA order.{% endblock %}
+
+{% block content %}
+<main class="bg-stark-white px-margin-mobile md:px-margin-desktop py-12 md:py-16 max-w-container-max mx-auto">
+
+    <h1
+        class="font-display text-headline-lg md:text-display-lg text-pitch-black text-center mb-12 md:mb-16 tracking-tight">
+        CHECKOUT
+    </h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16">
+
+        <!-- ===================== FORMS ===================== -->
+        <div class="lg:col-span-3 space-y-12">
+
+            <!-- Contact -->
+            <section>
+                <h2 class="font-display text-headline-md text-pitch-black mb-6">Contact Information</h2>
+                <div class="space-y-6">
+                    <div>
+                        <label class="block font-mono text-label-caps text-outline mb-2 uppercase tracking-widest">Full
+                            Name *</label>
+                        <input type="text" id="full_name" required placeholder="John Doe"
+                            class="w-full bg-stark-white border border-muted-steel text-pitch-black px-4 py-3 focus:outline-none focus:border-pitch-black transition-colors">
+                    </div>
+                    <div>
+                        <label class="block font-mono text-label-caps text-outline mb-2 uppercase tracking-widest">Email
+                            Address *</label>
+                        <input type="email" id="email" required placeholder="you@mail.com"
+                            class="w-full bg-stark-white border border-muted-steel text-pitch-black px-4 py-3 focus:outline-none focus:border-pitch-black transition-colors">
+                    </div>
+                    <div>
+                        <label class="block font-mono text-label-caps text-outline mb-2 uppercase tracking-widest">Phone
+                            Number *</label>
+                        <input type="tel" id="phone" required placeholder="08012345678"
+                            class="w-full bg-stark-white border border-muted-steel text-pitch-black px-4 py-3 focus:outline-none focus:border-pitch-black transition-colors">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Shipping -->
+            <section>
+                <h2 class="font-display text-headline-md text-pitch-black mb-6">Shipping Address</h2>
+                <div class="space-y-6">
+                    <div>
+                        <label
+                            for="shipping_type"
+                            class="block font-mono text-label-caps text-outline mb-2 uppercase tracking-widest">
+                            Shipping Type *
+                        </label>
+                        <select id="shipping_type" required
+                            class="w-full bg-stark-white border border-muted-steel text-pitch-black px-4 py-3 focus:outline-none focus:border-pitch-black transition-colors">
+                            <option value="local">Local (Nigeria)</option>
+                            <option value="international">International</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label
+                            class="block font-mono text-label-caps text-outline mb-2 uppercase tracking-widest">Address
+                            *</label>
+                        <input type="text" id="address" required placeholder="Street address"
+                            class="w-full bg-stark-white border border-muted-steel text-pitch-black px-4 py-3 focus:outline-none focus:border-pitch-black transition-colors">
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label
+                                class="block font-mono text-label-caps text-outline mb-2 uppercase tracking-widest">City
+                                *</label>
+                            <input type="text" id="city" required placeholder="Ibadan"
+                                class="w-full bg-stark-white border border-muted-steel text-pitch-black px-4 py-3 focus:outline-none focus:border-pitch-black transition-colors">
+                        </div>
+                        <div>
+                            <label
+                                class="block font-mono text-label-caps text-outline mb-2 uppercase tracking-widest">State / Region
+                                *</label>
+                            <input type="text" id="state" required placeholder="Oyo"
+                                class="w-full bg-stark-white border border-muted-steel text-pitch-black px-4 py-3 focus:outline-none focus:border-pitch-black transition-colors">
+                        </div>
+                    </div>
+                    <div>
+                        <label
+                            class="block font-mono text-label-caps text-outline mb-2 uppercase tracking-widest">Additional
+                            Notes (optional)</label>
+                        <textarea id="notes" rows="3" placeholder="Apartment, landmark, delivery instructions..."
+                            class="w-full bg-stark-white border border-muted-steel text-pitch-black px-4 py-3 focus:outline-none focus:border-pitch-black transition-colors"></textarea>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ===================== ORDER SUMMARY ===================== -->
+        <div class="lg:col-span-2">
+            <div class="border border-muted-steel bg-stark-white p-6 md:p-8 sticky top-28">
+                <h2 class="font-display text-headline-md text-pitch-black mb-6">Order Summary</h2>
+
+                <div id="order-items" class="space-y-5 mb-8"></div>
+
+                <div class="space-y-4 border-t border-muted-steel pt-6">
+                    <div class="flex justify-between font-body text-body-md text-pitch-black">
+                        <span>Subtotal</span>
+                        <span id="order-subtotal">₦0</span>
+                    </div>
+                    <div class="flex justify-between font-body text-body-md text-pitch-black">
+                        <span id="shipping-label">Shipping (Local)</span>
+                        <span id="shipping-fee">₦2,000</span>
+                    </div>
+                    <div class="flex justify-between font-body text-body-md text-pitch-black">
+                        <span>Service Fee</span>
+                        <span id="service-fee">₦2,000</span>
+                    </div>
+                    <div
+                        class="flex justify-between font-body text-body-lg font-bold text-pitch-black border-t border-muted-steel pt-4">
+                        <span>Total</span>
+                        <span id="order-total">₦0</span>
+                    </div>
+                </div>
+
+                <button id="place-order-btn" class="w-full mt-8 font-body font-bold bg-pitch-black text-stark-white text-button uppercase tracking-widest py-5
+                               hover:bg-on-surface-variant transition-colors
+                               disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-pitch-black" disabled>
+                    Place Order
+                </button>
+
+                <p class="mt-4 font-mono text-xs text-outline text-center">
+                    Delivery takes 1–2 weeks
+                </p>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const SERVICE_FEE = 2000;
+        const shippingTypeInput = document.getElementById("shipping_type");
+        const stateInput = document.getElementById("state");
+
+        function getShippingFee() {
+            if (shippingTypeInput.value === "international") return 20000;
+            const state = stateInput.value.trim().toLowerCase().replace(/\s+state$/, "");
+            if (state === "lagos") return 2000;
+            if (state === "oyo") return 4000;
+            return 10000;
+        }
+
+        function getCart() {
+            try {
+                return JSON.parse(localStorage.getItem("nexra_cart")) || [];
+            } catch {
+                return [];
+            }
+        }
+
+        function updateCartCount() {
+            const cart = getCart();
+            const count = cart.reduce((sum, item) => sum + (item.quantity || 0), 0);
+            document.querySelectorAll(".cart-count").forEach(el => el.textContent = count);
+        }
+
+        function renderOrderSummary() {
+            const cart = getCart();
+            const container = document.getElementById("order-items");
+            container.innerHTML = "";
+            const shippingFee = getShippingFee();
+            const shippingLabel = shippingTypeInput.value === "international"
+                ? "Shipping (International)"
+                : "Shipping (Local)";
+            document.getElementById("shipping-label").textContent = shippingLabel;
+            document.getElementById("shipping-fee").textContent = `₦${shippingFee.toLocaleString()}`;
+
+            if (cart.length === 0) {
+                container.innerHTML = `<p class="font-body text-body-md text-outline text-center py-8">Your cart is empty</p>`;
+                document.getElementById("place-order-btn").disabled = true;
+                document.getElementById("order-subtotal").textContent = "₦0";
+                document.getElementById("service-fee").textContent = `₦${SERVICE_FEE.toLocaleString()}`;
+                document.getElementById("order-total").textContent = `₦${(shippingFee + SERVICE_FEE).toLocaleString()}`;
+                return;
+            }
+
+            document.getElementById("place-order-btn").disabled = false;
+
+            let subtotal = 0;
+
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+                const sizeColor = [item.size, item.color].filter(Boolean).join(" / ");
+
+                container.innerHTML += `
+        <div class="flex gap-4">
+          <img src="${item.image || ''}" alt="${item.name}"
+               class="w-20 h-20 object-cover object-top bg-surface-gray flex-shrink-0">
+          <div class="flex-1 min-w-0">
+            <h4 class="font-body font-bold text-body-md text-pitch-black truncate">${item.name}</h4>
+            <p class="font-mono text-xs text-outline mt-1">${sizeColor} × ${item.quantity}</p>
+            <p class="font-mono text-sm text-pitch-black mt-1">₦${itemTotal.toLocaleString()}</p>
+          </div>
+        </div>
+      `;
+            });
+
+            document.getElementById("order-subtotal").textContent = `₦${subtotal.toLocaleString()}`;
+            document.getElementById("service-fee").textContent = `₦${SERVICE_FEE.toLocaleString()}`;
+            document.getElementById("order-total").textContent =
+                `₦${(subtotal + shippingFee + SERVICE_FEE).toLocaleString()}`;
+        }
+
+        shippingTypeInput.addEventListener("change", renderOrderSummary);
+        stateInput.addEventListener("input", renderOrderSummary);
+
+        // Place Order
+        document.getElementById("place-order-btn")?.addEventListener("click", async (e) => {
+            e.preventDefault();
+            const btn = e.currentTarget;
+            btn.disabled = true;
+            btn.textContent = "Processing...";
+
+            const formData = {
+                full_name: document.getElementById("full_name").value.trim(),
+                email: document.getElementById("email").value.trim(),
+                phone: document.getElementById("phone").value.trim(),
+                address: document.getElementById("address").value.trim(),
+                city: document.getElementById("city").value.trim(),
+                state: document.getElementById("state").value.trim(),
+                shipping_type: shippingTypeInput.value,
+                additional_notes: document.getElementById("notes").value.trim(),
+                cart_items: getCart()
+            };
+
+            // Validation
+            if (!formData.full_name || !formData.email || !formData.phone ||
+                !formData.address || !formData.city || !formData.state ||
+                formData.cart_items.length === 0) {
+                alert("Please fill all required fields.");
+                btn.disabled = false;
+                btn.textContent = "Place Order";
+                return;
+            }
+
+            try {
+                const response = await fetch("{% url 'orders:process_checkout' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCookie("csrftoken")
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Something went wrong");
+                }
+
+                if (data.authorization_url) {
+                    // Clear cart only after successful payment init (optional – you can also clear after payment success)
+                    // localStorage.removeItem("nexra_cart");
+                    window.location.href = data.authorization_url;
+                } else {
+                    throw new Error("Payment initialization failed");
+                }
+            } catch (err) {
+                alert(err.message);
+                console.error(err);
+                btn.disabled = false;
+                btn.textContent = "Place Order";
+            }
+        });
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== "") {
+                const cookies = document.cookie.split(";");
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.startsWith(name + "=")) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Init
+        renderOrderSummary();
+        updateCartCount();
+    });
+</script>
+{% endblock %}

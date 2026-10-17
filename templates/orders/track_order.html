@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Track Your Order | NEXRA{% endblock %}
+{% block meta_description %}Check the latest status of your NEXRA order.{% endblock %}
+
+{% block content %}
+<main class="bg-stark-white px-margin-mobile md:px-margin-desktop py-12 md:py-16 max-w-container-max mx-auto">
+    <header class="text-center mb-12 md:mb-16">
+        <p class="font-mono text-label-caps text-outline uppercase tracking-widest mb-4">NEXRA Orders</p>
+        <h1 class="font-display text-headline-lg md:text-display-lg text-pitch-black tracking-tight">
+            TRACK YOUR ORDER
+        </h1>
+        <p class="font-body text-body-md text-outline mt-4 max-w-xl mx-auto">
+            Enter your order number and the email address used at checkout to see your order status.
+        </p>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-14 items-start">
+        <section class="lg:col-span-2 border border-muted-steel p-6 md:p-8">
+            <h2 class="font-display text-headline-md text-pitch-black mb-6">Find an Order</h2>
+
+            {% if error %}
+            <div class="border border-red-700 bg-red-50 text-red-900 px-4 py-3 mb-6 font-body text-sm"
+                role="alert">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="get" action="{% url 'orders:track_order' %}" class="space-y-5">
+                <div>
+                    <label for="order_id"
+                        class="block font-mono text-label-caps text-outline mb-2 uppercase tracking-widest">
+                        Order Number
+                    </label>
+                    <input type="text" id="order_id" name="order_id" value="{{ submitted_order_id }}"
+                        placeholder="NR-XXXXXXXX" autocomplete="off" required
+                        class="w-full bg-stark-white border border-muted-steel text-pitch-black px-4 py-3 focus:outline-none focus:border-pitch-black transition-colors">
+                </div>
+                <div>
+                    <label for="email"
+                        class="block font-mono text-label-caps text-outline mb-2 uppercase tracking-widest">
+                        Email Address
+                    </label>
+                    <input type="email" id="email" name="email" value="{{ submitted_email }}"
+                        placeholder="you@example.com" autocomplete="email" required
+                        class="w-full bg-stark-white border border-muted-steel text-pitch-black px-4 py-3 focus:outline-none focus:border-pitch-black transition-colors">
+                </div>
+                <button type="submit"
+                    class="w-full font-body font-bold bg-pitch-black text-stark-white text-button uppercase tracking-widest py-4 hover:bg-on-surface-variant transition-colors">
+                    Track Order
+                </button>
+            </form>
+        </section>
+
+        {% if order %}
+        <section class="lg:col-span-3 space-y-8" aria-live="polite">
+            <div class="border border-muted-steel p-6 md:p-8">
+                <div class="flex flex-col sm:flex-row sm:justify-between gap-5 mb-8">
+                    <div>
+                        <p class="font-mono text-label-caps text-outline uppercase tracking-widest mb-1">
+                            Order Number
+                        </p>
+                        <p class="font-body font-bold text-body-lg text-pitch-black">{{ order.order_id }}</p>
+                    </div>
+                    <div class="sm:text-right">
+                        <p class="font-mono text-label-caps text-outline uppercase tracking-widest mb-1">
+                            Placed
+                        </p>
+                        <p class="font-body text-body-md text-pitch-black">{{ order.created_at|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+
+                {% if order.status == "cancelled" or order.status == "failed" %}
+                <div class="border border-red-700 bg-red-50 text-red-900 px-4 py-4" role="status">
+                    <p class="font-body font-bold">{{ order.get_status_display }}</p>
+                    <p class="font-body text-sm mt-1">
+                        {% if order.status == "failed" %}
+                        This order could not be completed. Please contact us if you need assistance.
+                        {% else %}
+                        This order has been cancelled. Please contact us if you have questions.
+                        {% endif %}
+                    </p>
+                </div>
+                {% else %}
+                <div class="mb-8">
+                    <div class="flex items-center justify-between gap-2">
+                        {% for step, label in order_status_steps %}
+                        <div class="flex flex-1 flex-col items-center text-center">
+                            <span class="flex h-9 w-9 items-center justify-center border
+                                {% if forloop.counter0 <= order_status_index %}
+                                    border-pitch-black bg-pitch-black text-stark-white
+                                {% else %}
+                                    border-muted-steel bg-stark-white text-outline
+                                {% endif %}">
+                                {% if forloop.counter0 < order_status_index %}
+                                <span class="material-symbols-outlined text-base" aria-hidden="true">check</span>
+                                {% else %}
+                                <span class="font-mono text-xs">{{ forloop.counter }}</span>
+                                {% endif %}
+                            </span>
+                            <span class="font-mono text-[10px] uppercase tracking-wider mt-2
+                                {% if forloop.counter0 <= order_status_index %}text-pitch-black{% else %}text-outline{% endif %}">
+                                {{ label }}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-5 border-l-2 border-pitch-black pl-4 py-1">
+                        <p class="font-body font-bold text-pitch-black">
+                            {% if order.status == "pending" and order.payment_status == "pending" %}
+                            Order received — awaiting payment
+                            {% else %}
+                            {{ order.get_status_display }}
+                            {% endif %}
+                        </p>
+                        <p class="font-body text-sm text-outline mt-1">
+                            Payment: {{ order.get_payment_status_display }}
+                        </p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="border-t border-muted-steel pt-6">
+                    <h3 class="font-display text-headline-sm text-pitch-black mb-4">Items</h3>
+                    <div class="space-y-4">
+                        {% for item in order.items.all %}
+                        <div class="flex gap-4 items-center">
+                            {% if item.image %}
+                            <img src="{{ item.image }}" alt="{{ item.product_name }}"
+                                class="w-16 h-16 object-cover object-top bg-surface-gray flex-shrink-0">
+                            {% else %}
+                            <div class="w-16 h-16 bg-surface-gray flex-shrink-0" aria-hidden="true"></div>
+                            {% endif %}
+                            <div class="flex-1 min-w-0">
+                                <p class="font-body font-bold text-pitch-black">{{ item.product_name }}</p>
+                                <p class="font-mono text-xs text-outline mt-1">
+                                    {% if item.size %}{{ item.size }}{% endif %}
+                                    {% if item.size and item.color %} / {% endif %}
+                                    {% if item.color %}{{ item.color }}{% endif %}
+                                    · Qty {{ item.quantity }}
+                                </p>
+                            </div>
+                            <p class="font-mono text-sm text-pitch-black whitespace-nowrap">
+                                ₦{{ item.line_total|floatformat:0|intcomma }}
+                            </p>
+                        </div>
+                        {% empty %}
+                        <p class="font-body text-body-md text-outline">No items found for this order.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div class="border border-muted-steel p-6">
+                    <h3 class="font-display text-headline-sm text-pitch-black mb-3">Delivering To</h3>
+                    <p class="font-body text-body-md text-pitch-black">{{ order.name }}</p>
+                    <p class="font-body text-sm text-outline mt-1">{{ order.address }}</p>
+                    <p class="font-body text-sm text-outline">{{ order.city }}, {{ order.state }}</p>
+                    {% if order.postal_code %}
+                    <p class="font-body text-sm text-outline">{{ order.postal_code }}</p>
+                    {% endif %}
+                    <p class="font-mono text-xs text-outline mt-3">{{ order.get_shipping_type_display }} shipping</p>
+                </div>
+
+                <div class="border border-muted-steel p-6">
+                    <h3 class="font-display text-headline-sm text-pitch-black mb-4">Order Total</h3>
+                    <div class="space-y-2 font-body text-sm text-pitch-black">
+                        <div class="flex justify-between gap-4">
+                            <span>Subtotal</span>
+                            <span>₦{{ order.subtotal|floatformat:0|intcomma }}</span>
+                        </div>
+                        <div class="flex justify-between gap-4">
+                            <span>Shipping</span>
+                            <span>₦{{ order.shipping_fee|floatformat:0|intcomma }}</span>
+                        </div>
+                        <div class="flex justify-between gap-4">
+                            <span>Service fee</span>
+                            <span>₦{{ order.service_fee|floatformat:0|intcomma }}</span>
+                        </div>
+                        <div class="flex justify-between gap-4 border-t border-muted-steel pt-3 mt-3 font-bold">
+                            <span>Total</span>
+                            <span>₦{{ order.total_price|floatformat:0|intcomma }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+    </div>
+</main>
+{% endblock %}

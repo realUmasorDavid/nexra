@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{{ product.name }} | NEXRA{% endblock %}
+{% block meta_description %}{{ product.short_description|default:product.description|truncatewords:30 }}{% endblock %}
+
+{% block extra_head %}
+<!-- <link rel="stylesheet" href="{% static 'css/store-widgets.css' %}"> -->
+<style>
+    .main-image {
+        transition: transform 0.6s ease;
+    }
+
+    .main-image:hover {
+        transform: scale(1.03);
+    }
+
+    .thumbnail {
+        transition: border-color 0.2s ease;
+    }
+
+    .thumbnail.active,
+    .thumbnail:hover {
+        border-color: #ffffff;
+    }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+    #cart-toast {
+        position: fixed;
+        bottom: 90px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: #ffffff;
+        color: #000000;
+        padding: 14px 28px;
+        z-index: 70;
+        opacity: 0;
+        transition: all 0.4s ease;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        font-size: 12px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        pointer-events: none;
+    }
+
+    #cart-toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 639px) {
+        #cart-toast {
+            bottom: 80px;
+        }
+    }
+
+    /* Color swatch active state */
+    .color-swatch.active {
+        outline: 2px solid #ffffff;
+        outline-offset: 2px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<main class="px-margin-mobile md:px-margin-desktop py-12 md:py-16 max-w-container-max mx-auto">
+
+    <nav class="font-mono text-label-caps text-outline mb-10">
+        <a href="{% url 'core:index' %}" class="hover:text-stark-white transition-colors">Home</a> /
+        <a href="{% url 'store:store' %}" class="hover:text-stark-white transition-colors">Shop</a> /
+        <span class="text-stark-white">{{ product.name }}</span>
+    </nav>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16">
+
+        {# ---------- Images ---------- #}
+        <div class="space-y-6">
+            <div class="overflow-hidden border border-muted-steel bg-surface-gray relative">
+                {% if product.primary_image_url %}
+                <img src="{{ product.primary_image_url }}" alt="{{ product.name }}"
+                    class="w-full h-[480px] object-cover object-top main-image" id="mainImage" loading="lazy">
+                {% else %}
+                <div class="w-full h-[480px] flex items-center justify-center bg-muted-steel/20">
+                    <span class="font-mono text-sm text-outline">No image</span>
+                </div>
+                {% endif %}
+
+                {% if product.is_on_sale %}
+                <div class="absolute top-4 left-4 bg-pitch-black border border-stark-white px-3 py-1">
+                    <span class="font-mono text-[10px] text-stark-white uppercase tracking-widest">
+                        -{{ product.discount_percentage }}%
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if product.images.exists %}
+            <div class="grid grid-cols-4 gap-4">
+                {% for image in product.images.all %}
+                <button type="button"
+                    class="thumbnail border border-muted-steel overflow-hidden focus:outline-none {% if forloop.first %}active{% endif %}"
+                    data-full="{{ image.image.url }}">
+                    <img src="{{ image.image.url }}" alt="{{ product.name }} - view {{ forloop.counter }}"
+                        class="w-full h-20 md:h-24 object-cover object-top" loading="lazy">
+                </button>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        {# ---------- Info ---------- #}
+        <div class="space-y-10">
+            <div>
+                <h1 class="font-display text-headline-lg-mobile md:text-headline-lg text-stark-white leading-none mb-4">
+                    {{ product.name }}
+                </h1>
+
+                <div class="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
+                    <div class="flex items-baseline gap-3">
+                        <p class="font-display text-headline-md text-stark-white" id="productPriceDisplay"
+                            data-ngn-price="{{ product.price }}">
+                            ₦{{ product.price|intcomma }}
+                        </p>
+                        {% if product.is_on_sale %}
+                        <p class="font-mono text-base text-outline line-through"
+                            data-ngn-price="{{ product.compare_at_price }}">
+                            ₦{{ product.compare_at_price|intcomma }}
+                        </p>
+                        {% endif %}
+                    </div>
+
+                    {% if product.collections.exists %}
+                    <span
+                        class="inline-block bg-surface-gray border border-muted-steel text-outline px-4 py-1 font-mono text-[10px] uppercase tracking-widest w-fit">
+                        {{ product.collections.first.name }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            {# Color selection #}
+            {% if colors %}
+            <div>
+                <label class="block font-mono text-label-caps text-outline mb-4">
+                    Color: <span id="selected-color-label" class="text-stark-white"></span>
+                </label>
+                <div class="flex flex-wrap gap-3" id="color-options">
+                    {% for color in colors %}
+                    <button type="button"
+                        class="color-swatch w-11 h-11 rounded-full border border-muted-steel transition-all"
+                        data-color="{{ color.code }}" data-name="{{ color.name }}"
+                        style="background-color: {{ color.hex_code|default:'#888' }};" title="{{ color.name }}">
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {# Size selection #}
+            {% if sizes %}
+            <div>
+                <label class="block font-mono text-label-caps text-outline mb-4">
+                    Size: <span id="selected-size-label" class="text-stark-white"></span>
+                </label>
+                <div class="flex flex-wrap gap-3" id="size-buttons">
+                    {% for size in sizes %}
+                    <button type="button"
+                        class="size-btn px-6 py-3 border border-muted-steel font-body font-bold text-body-md text-stark-white hover:bg-stark-white hover:text-pitch-black transition-colors"
+                        data-size="{{ size.code }}">
+                        {{ size.code }}
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {# Stock message #}
+            <p class="font-mono text-sm text-outline" id="stock-status">
+                {% if is_sold_out %}Sold Out{% else %}Select color & size{% endif %}
+            </p>
+
+            {# Quantity + Add to cart #}
+            <div class="flex flex-col md:flex-row md:items-center gap-6">
+                <div class="flex items-center border border-muted-steel w-40 md:w-auto flex-shrink-0">
+                    <button type="button" id="qty-decrement"
+                        class="px-5 py-3 text-lg text-stark-white hover:bg-surface-gray transition-colors">&minus;</button>
+                    <input type="number" id="quantity" name="quantity" value="1" min="1" max="10"
+                        class="w-20 bg-transparent text-center border-none focus:outline-none text-stark-white font-body font-bold text-lg">
+                    <button type="button" id="qty-increment"
+                        class="px-5 py-3 text-lg text-stark-white hover:bg-surface-gray transition-colors">+</button>
+                </div>
+
+                <button id="add-to-cart-btn"
+                    class="flex-1 font-body font-bold bg-stark-white text-pitch-black text-button uppercase tracking-widest py-4 hover:bg-on-surface-variant transition-all-custom active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-stark-white"
+                    {% if is_sold_out %}disabled{% endif %}>
+                    {% if is_sold_out %}Sold Out{% else %}Add to Cart{% endif %}
+                </button>
+            </div>
+
+            {# Description #}
+            {% if product.description %}
+            <div class="pt-8 border-t border-muted-steel">
+                <h3 class="font-display text-headline-md text-stark-white mb-4">DESCRIPTION</h3>
+                <div class="font-body text-body-md text-on-surface-variant leading-relaxed space-y-4">
+                    {{ product.description|linebreaks }}
+                </div>
+            </div>
+            {% endif %}
+
+            {# Material / Care #}
+            {% if product.material or product.care_instructions %}
+            <div class="pt-8 border-t border-muted-steel space-y-4">
+                {% if product.material %}
+                <p class="font-mono text-label-caps text-outline">— {{ product.material|upper }}</p>
+                {% endif %}
+                {% if product.care_instructions %}
+                <p class="font-mono text-label-caps text-outline whitespace-pre-line">{{ product.care_instructions }}
+                </p>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="pt-8 border-t border-muted-steel space-y-2">
+                <p class="font-mono text-label-caps text-outline">— PREMIUM HEAVYWEIGHT FABRIC</p>
+                <p class="font-mono text-label-caps text-outline">— LIMITED EDITION DROP</p>
+                <p class="font-mono text-label-caps text-outline">— MADE FOR THE STREETS</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</main>
+
+<div id="cart-toast">Added to cart!</div>
+
+{# ---------- Size guide ---------- #}
+{% if product.size_guide and product.size_guide.image_guide %}
+<div class="px-margin-mobile md:px-margin-desktop pb-20 max-w-container-max mx-auto">
+    <button id="guide-toggle" type="button"
+        aria-expanded="false" aria-controls="size-guide-content"
+        class="w-full text-left py-5 px-6 border border-muted-steel flex justify-between items-center hover:bg-surface-gray transition-colors">
+        <span class="font-body font-bold text-body-lg text-stark-white">
+            {{ product.name }} Size Guide
+        </span>
+        <span class="material-symbols-outlined text-stark-white" id="guide-icon">expand_more</span>
+    </button>
+    <div class="hidden" id="size-guide-content">
+        <section class="border border-t-0 border-muted-steel px-6 py-10">
+            <img src="{{ product.size_guide.image_guide.url }}" alt="{{ product.size_guide.name }} size guide"
+                class="mx-auto h-auto max-w-full">
+        </section>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    window.NEXRA_PRODUCT = {
+        id: "{{ product.id }}",
+        name: "{{ product.name|escapejs }}",
+        slug: "{{ product.slug }}",
+        basePrice: {{ product.price }},
+        image: "{{ product.primary_image_url|default:''|escapejs }}",
+        category: "{{ product.category.name|escapejs }}",
+    };
+
+    // All active variants for the frontend
+    window.NEXRA_VARIANTS = [
+        {% for v in product.variants.all %}
+        {
+            id: {{ v.id }},
+            size: "{{ v.size.code }}",
+            sizeName: "{{ v.size.name }}",
+            color: "{{ v.color.code }}",
+            colorName: "{{ v.color.name }}",
+            price: {{ v.price }},
+            stock: {{ v.stock }},
+            sku: "{{ v.sku }}"
+        } {% if not forloop.last %}, {% endif %}
+        {% endfor %}
+    ];
+</script>
+<script src="{% static 'js/product-detail.js' %}"></script>
+{% endblock %}
